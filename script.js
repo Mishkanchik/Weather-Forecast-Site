@@ -10,21 +10,26 @@ function showTab(tab) {
 
 async function loadWeather(city) {
     currentCity = city;
+
     const todayURL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
     const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=${apiKey}`;
 
     try {
-        // Поточна погода
+       
+
         const todayResponse = await fetch(todayURL);
         const todayData = await todayResponse.json();
         displayTodayWeather(todayData);
 
-        // 5-денний прогноз
+
+
         const forecastResponse = await fetch(forecastURL);
         const forecastData = await forecastResponse.json();
         displayForecastWeather(forecastData);
 
-        // Погодинний прогноз для сьогодні
+      
+
+
         const todayDate = new Date().toISOString().split('T')[0];
         displayHourlyToday(forecastData, todayDate);
     } catch (error) {
@@ -47,6 +52,12 @@ function displayTodayWeather(data) {
     `;
 }
 
+
+
+
+
+
+
 function displayHourlyToday(forecastData, todayDate) {
     const hourlyTodayContainer = document.getElementById('hourlyToday');
     hourlyTodayContainer.innerHTML = '';
@@ -67,11 +78,24 @@ function displayHourlyToday(forecastData, todayDate) {
     });
 }
 
+
+
+
+
+
+
+
+
+
+
+
 function displayForecastWeather(data) {
     const forecastDays = document.getElementById('forecastDays');
     const hourlyForecast = document.getElementById('hourlyForecast');
     forecastDays.innerHTML = '';
     hourlyForecast.innerHTML = '';
+
+
 
     dailyData = {};
     data.list.forEach(item => {
@@ -79,6 +103,8 @@ function displayForecastWeather(data) {
         if (!dailyData[date]) dailyData[date] = [];
         dailyData[date].push(item);
     });
+
+
 
     Object.keys(dailyData).slice(0, 5).forEach(date => {
         const day = dailyData[date][0];
@@ -92,11 +118,26 @@ function displayForecastWeather(data) {
                 <p>${day.weather[0].description}</p>
             </div>
         `;
+
+        
         if (!document.getElementById('selectedDay').innerText) {
             displayHourly(date);
         }
     });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function displayHourly(date) {
     const hourlyForecast = document.getElementById('hourlyForecast');
@@ -117,6 +158,13 @@ function displayHourly(date) {
         `;
     });
 }
+
+
+
+
+
+
+
 
 function searchCity(event) {
     event.preventDefault();
