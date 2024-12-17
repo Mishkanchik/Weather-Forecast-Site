@@ -119,7 +119,7 @@ function displayForecastWeather(data) {
             </div>
         `;
 
-        
+
         if (!document.getElementById('selectedDay').innerText) {
             displayHourly(date);
         }
@@ -172,4 +172,4 @@ function searchCity(event) {
     loadWeather(city);
 }
 
-window.onload = () => loadWeather('Kyiv');
+window.onload = () => loadWeather('Tsuman');
