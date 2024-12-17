@@ -33,7 +33,8 @@ async function loadWeather(city) {
         const todayDate = new Date().toISOString().split('T')[0];
         displayHourlyToday(forecastData, todayDate);
     } catch (error) {
-        alert('Error fetching weather data. Please try again.');
+        console.error('Error:', error);
+        showErrorPage(city);
     }
 }
 
@@ -81,7 +82,13 @@ function displayHourlyToday(forecastData, todayDate) {
 
 
 
+function showErrorPage(city) {
+    document.getElementById('error').style.display = 'block';
+    document.getElementById('errorCity').innerText = city;
 
+    document.getElementById('today').style.display = 'none';
+    document.getElementById('forecast').style.display = 'none';
+}
 
 
 
