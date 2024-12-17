@@ -12,7 +12,7 @@
 
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
+        <div class="container-fluid gap">
             <a class="navbar-brand" href="#">MY WEATHER</a>
             <div class="btn-group" role="group">
                 <button class="btn btn-outline-secondary" onclick="showTab('today')">Today</button>
@@ -36,9 +36,9 @@
         </div>
 
    
-        <div id="today" class="tab-content">
+        <div id="today" class="tab-content ">
             <h2>Today's Weather</h2>
-            <div id="todayWeather" class="p-4 bg-white rounded shadow-sm">Loading...</div>
+            <div id="todayWeather" class="p-4 bg-color rounded shadow-sm ">Loading...</div>
         </div>
 
         <div id="forecast" class="tab-content" style="display: none;">
@@ -50,8 +50,8 @@
     </div>
 
 
-    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="./config.js"></script>
     <script src="./script.js"></script>
 </body>
 </html>

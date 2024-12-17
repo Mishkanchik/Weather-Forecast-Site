@@ -1,4 +1,4 @@
-const apiKey = 'd5ad319024e15ebde4bfe53bf5401289'; 
+
 let currentCity = '';
 let dailyData = {};
 
@@ -11,37 +11,40 @@ function showTab(tab) {
 async function loadWeather(city) {
     currentCity = city;
 
+  
+    document.getElementById('error').style.display = 'none';
+    document.getElementById('today').style.display = 'block';
+
+
     const todayURL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
     const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=${apiKey}`;
 
     try {
-       
-
         const todayResponse = await fetch(todayURL);
+        if (!todayResponse.ok) throw new Error();
+
         const todayData = await todayResponse.json();
         displayTodayWeather(todayData);
 
-
-
         const forecastResponse = await fetch(forecastURL);
+        if (!forecastResponse.ok) throw new Error();
+
         const forecastData = await forecastResponse.json();
         displayForecastWeather(forecastData);
 
-      
-
-
         const todayDate = new Date().toISOString().split('T')[0];
         displayHourlyToday(forecastData, todayDate);
-    } catch (error) {
-        console.error('Error:', error);
+    } catch {
         showErrorPage(city);
     }
 }
+
 
 function displayTodayWeather(data) {
     const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString();
     const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString();
     document.getElementById('todayWeather').innerHTML = `
+    <div>
         <h4>${data.name}</h4>
         <p>${new Date().toDateString()}</p>
         <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" class="weather-icon" alt="Weather Icon">
@@ -50,6 +53,7 @@ function displayTodayWeather(data) {
         <p>Sunrise: ${sunrise} | Sunset: ${sunset}</p>
         <h5 class="mt-3">Hourly Forecast</h5>
         <div id="hourlyToday" class="row"></div>
+    </div>
     `;
 }
 
@@ -67,7 +71,7 @@ function displayHourlyToday(forecastData, todayDate) {
     todayHours.forEach(hour => {
         const time = hour.dt_txt.split(' ')[1].slice(0, 5);
         hourlyTodayContainer.innerHTML += `
-            <div class="col-md-2 hour-card text-center shadow">
+            <div class="col-md-2 hour-card text-center shadow bg-success">
                 <h6>${time}</h6>
                 <img src="https://openweathermap.org/img/wn/${hour.weather[0].icon}.png" class="weather-icon">
                 <p>${hour.weather[0].description}</p>
@@ -88,6 +92,7 @@ function showErrorPage(city) {
 
     document.getElementById('today').style.display = 'none';
     document.getElementById('forecast').style.display = 'none';
+
 }
 
 
@@ -117,7 +122,7 @@ function displayForecastWeather(data) {
         const day = dailyData[date][0];
         const weekday = new Date(date).toLocaleDateString('en-US', { weekday: 'long' });
         forecastDays.innerHTML += `
-            <div class="col-md-2 day-card text-center cursor-pointer shadow-hover-forecast" onclick="displayHourly('${date}')">
+            <div class="col-md-2 day-card text-center cursor-pointer shadow-hover-forecast bg-success" onclick="displayHourly('${date}')">
                 <h5>${weekday}</h5>
                 <p>${date}</p>
                 <img src="https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png" class="weather-icon">
@@ -154,7 +159,7 @@ function displayHourly(date) {
     dailyData[date].forEach(hour => {
         const time = hour.dt_txt.split(' ')[1].slice(0, 5);
         hourlyForecast.innerHTML += `
-            <div class="col-md-2 hour-card text-center shadow ">
+            <div class="col-md-2 hour-card text-center shadow bg-success">
                 <h6>${time}</h6>
                 <img src="https://openweathermap.org/img/wn/${hour.weather[0].icon}.png" class="weather-icon">
                 <p>${hour.weather[0].description}</p>

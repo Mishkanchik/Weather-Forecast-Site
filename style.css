@@ -1,10 +1,16 @@
-body { background-color: #f8f9fa; }
+body { background-color: #68e9b89c; }
 
 .weather-icon { width: 50px; height: 50px; }
 
 .tab-content { margin-top: 20px; }
 
+.bg-color{
+    background-color: #a7cdafde;
 
+}
+.gap{
+    gap: 10px;
+}
 .day-card, .hour-card { border: 1px solid #ddd; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
 
 .error-page { text-align: center; padding: 50px; font-size: 1.2rem; color: #555; }
