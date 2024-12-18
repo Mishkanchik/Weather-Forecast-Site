@@ -8,13 +8,13 @@ function showTab(tab) {
     document.getElementById('error').style.display = 'none';
 }
 
+
+
 async function loadWeather(city) {
     currentCity = city;
 
-  
     document.getElementById('error').style.display = 'none';
     document.getElementById('today').style.display = 'block';
-
 
     const todayURL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
     const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=${apiKey}`;
@@ -34,26 +34,34 @@ async function loadWeather(city) {
 
         const todayDate = new Date().toISOString().split('T')[0];
         displayHourlyToday(forecastData, todayDate);
+
+      
+        localStorage.setItem('lastSearchedCity', city);
     } catch {
         showErrorPage(city);
     }
 }
 
 
+
 function displayTodayWeather(data) {
     const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString();
     const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString();
     document.getElementById('todayWeather').innerHTML = `
-    <div>
+    
         <h4>${data.name}</h4>
         <p>${new Date().toDateString()}</p>
-        <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" class="weather-icon" alt="Weather Icon">
+        <img width="100px" src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="Weather Icon">
         <p><strong>${data.weather[0].description}</strong></p>
-        <p>Temperature: ${data.main.temp}°C (Feels like ${data.main.feels_like}°C)</p>
+        <div class="flex">
+        <p>Temperature:<h2> ${data.main.temp}°C </h2></p>
+        </div>
+      
+        <p>(Feels like ${data.main.feels_like}°C)</p>
         <p>Sunrise: ${sunrise} | Sunset: ${sunset}</p>
         <h5 class="mt-3">Hourly Forecast</h5>
         <div id="hourlyToday" class="row"></div>
-    </div>
+    
     `;
 }
 
@@ -71,7 +79,7 @@ function displayHourlyToday(forecastData, todayDate) {
     todayHours.forEach(hour => {
         const time = hour.dt_txt.split(' ')[1].slice(0, 5);
         hourlyTodayContainer.innerHTML += `
-            <div class="col-md-2 hour-card text-center shadow bg-success">
+            <div class="col-md-2 hour-card text-center shadow bg-card">
                 <h6>${time}</h6>
                 <img src="https://openweathermap.org/img/wn/${hour.weather[0].icon}.png" class="weather-icon">
                 <p>${hour.weather[0].description}</p>
@@ -122,7 +130,7 @@ function displayForecastWeather(data) {
         const day = dailyData[date][0];
         const weekday = new Date(date).toLocaleDateString('en-US', { weekday: 'long' });
         forecastDays.innerHTML += `
-            <div class="col-md-2 day-card text-center cursor-pointer shadow-hover-forecast bg-success" onclick="displayHourly('${date}')">
+            <div class="col-md-2 day-card text-center cursor-pointer shadow-hover-forecast bg-card" onclick="displayHourly('${date}')">
                 <h5>${weekday}</h5>
                 <p>${date}</p>
                 <img src="https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png" class="weather-icon">
@@ -159,7 +167,7 @@ function displayHourly(date) {
     dailyData[date].forEach(hour => {
         const time = hour.dt_txt.split(' ')[1].slice(0, 5);
         hourlyForecast.innerHTML += `
-            <div class="col-md-2 hour-card text-center shadow bg-success">
+            <div class="col-md-2 hour-card text-center shadow bg-card">
                 <h6>${time}</h6>
                 <img src="https://openweathermap.org/img/wn/${hour.weather[0].icon}.png" class="weather-icon">
                 <p>${hour.weather[0].description}</p>
@@ -176,12 +184,21 @@ function displayHourly(date) {
 
 
 
-
-
 function searchCity(event) {
     event.preventDefault();
     const city = document.getElementById('cityInput').value;
     loadWeather(city);
 }
 
-window.onload = () => loadWeather('Tsuman');
+
+window.onload = () => {
+   
+    const lastSearchedCity = localStorage.getItem('lastSearchedCity');
+    const defaultCity = 'Tsuman';
+
+    if (lastSearchedCity) {
+        loadWeather(lastSearchedCity);
+    } else {
+        loadWeather(defaultCity);
+    }
+};
