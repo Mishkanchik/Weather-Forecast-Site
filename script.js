@@ -1,4 +1,17 @@
 
+    const btnGroup = document.getElementsByClassName('btn-group');
+
+    const BtnActive = btnGroup[0].getElementsByClassName('btn');
+    
+    for (var i = 0; i < BtnActive.length; i++) {
+        BtnActive[i].addEventListener("click", function() {
+          var current = document.getElementsByClassName(" active");
+          current[0].className = current[0].className.replace(" active", "");
+          this.className += " active";  
+        });
+      }
+
+
 let currentCity = '';
 let dailyData = {};
 
@@ -6,8 +19,9 @@ function showTab(tab) {
     document.getElementById('today').style.display = tab === 'today' ? 'block' : 'none';
     document.getElementById('forecast').style.display = tab === 'forecast' ? 'block' : 'none';
     document.getElementById('error').style.display = 'none';
-}
 
+
+}
 
 
 async function loadWeather(city) {
@@ -15,6 +29,7 @@ async function loadWeather(city) {
 
     document.getElementById('error').style.display = 'none';
     document.getElementById('today').style.display = 'block';
+    document.getElementById('forecast').style.display = 'none';
 
     const todayURL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
     const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=${apiKey}`;
@@ -188,6 +203,8 @@ function searchCity(event) {
     event.preventDefault();
     const city = document.getElementById('cityInput').value;
     loadWeather(city);
+    BtnActive[1].classList.remove('active');
+    BtnActive[0].classList.add('active');
 }
 
 
