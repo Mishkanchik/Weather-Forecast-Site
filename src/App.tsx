@@ -138,7 +138,17 @@ const autocompleteCities: CitySuggestion[] = [
   { en: "Singapore", uk: "Сінгапур" },
   { en: "Dubai", uk: "Дубай" },
   { en: "Istanbul", uk: "Стамбул" },
-  { en: "Seoul", uk: "Сеул" }
+  { en: "Seoul", uk: "Сеул" },
+  // More Ukrainian Cities
+  { en: "Kremenchuk", uk: "Кременчук" },
+  { en: "Bila Tserkva", uk: "Біла Церква" },
+  { en: "Mukachevo", uk: "Мукачево" },
+  { en: "Uman", uk: "Умань" },
+  { en: "Kamianets-Podilskyi", uk: "Кам'янець-Подільський" },
+  { en: "Brovary", uk: "Бровари" },
+  { en: "Berdiansk", uk: "Бердянськ" },
+  { en: "Pavlohrad", uk: "Павлоград" },
+  { en: "Konotop", uk: "Конотоп" }
 ]
 
 const mapWeatherType = (condition: string): 'clear' | 'clouds' | 'rain' | 'snow' | 'thunderstorm' | 'mist' => {
@@ -157,7 +167,7 @@ function WeatherEffectBackground({ type, isDay }: { type: string; isDay: boolean
   let gradientClass = "from-slate-950 via-slate-900 to-zinc-950"
   if (type === 'clear') {
     gradientClass = isDay 
-      ? "from-sky-900/40 via-blue-900/30 to-[#030712]" 
+      ? "from-sky-400/60 via-sky-600/45 to-[#030712]" 
       : "from-indigo-950/50 via-[#060a1f] to-[#030712]"
   } else if (type === 'clouds') {
     gradientClass = "from-slate-800/50 via-slate-900/40 to-[#030712]"
@@ -324,6 +334,57 @@ function WeatherEffectBackground({ type, isDay }: { type: string; isDay: boolean
   )
 }
 
+// Calculate moon phase based on a date
+function getMoonPhase(date: Date): { phase: number; nameEn: string; nameUk: string; icon: string } {
+  // Epoch: New Moon on Jan 6, 2000 18:14:00 UTC (Julian date 2451550.26)
+  const knownNewMoon = new Date(Date.UTC(2000, 0, 6, 18, 14, 0))
+  const diffMs = date.getTime() - knownNewMoon.getTime()
+  const diffDays = diffMs / (1000 * 60 * 60 * 24)
+  const lunarPeriod = 29.530588853
+  const rawPhase = (diffDays / lunarPeriod) % 1
+  const phase = rawPhase < 0 ? rawPhase + 1 : rawPhase
+
+  let nameEn = ""
+  let nameUk = ""
+  let icon = ""
+
+  if (phase < 0.03 || phase > 0.97) {
+    nameEn = "New Moon"
+    nameUk = "Новий Місяць"
+    icon = "🌑"
+  } else if (phase >= 0.03 && phase < 0.22) {
+    nameEn = "Waxing Crescent"
+    nameUk = "Молодий Місяць"
+    icon = "🌒"
+  } else if (phase >= 0.22 && phase < 0.28) {
+    nameEn = "First Quarter"
+    nameUk = "Перша Чверть"
+    icon = "🌓"
+  } else if (phase >= 0.28 && phase < 0.47) {
+    nameEn = "Waxing Gibbous"
+    nameUk = "Прибуваючий Місяць"
+    icon = "🌔"
+  } else if (phase >= 0.47 && phase < 0.53) {
+    nameEn = "Full Moon"
+    nameUk = "Повня"
+    icon = "🌕"
+  } else if (phase >= 0.53 && phase < 0.72) {
+    nameEn = "Waning Gibbous"
+    nameUk = "Спадаючий Місяць"
+    icon = "🌖"
+  } else if (phase >= 0.72 && phase < 0.78) {
+    nameEn = "Last Quarter"
+    nameUk = "Остання Чверть"
+    icon = "🌗"
+  } else {
+    nameEn = "Waning Crescent"
+    nameUk = "Старий Місяць"
+    icon = "🌘"
+  }
+
+  return { phase, nameEn, nameUk, icon }
+}
+
 function App() {
   const [language, setLanguage] = React.useState<Language>('uk')
   const [searchQuery, setSearchQuery] = React.useState("")
@@ -357,7 +418,13 @@ function App() {
     setError(null)
     setShowSuggestions(false)
     try {
-      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(name)}&units=metric&lang=${language}&appid=${apiKey}`)
+      const normalizedName = name.trim().toLowerCase()
+      const matchedCity = autocompleteCities.find(
+        city => city.en.toLowerCase() === normalizedName || city.uk.toLowerCase() === normalizedName
+      )
+      const queryName = matchedCity ? matchedCity.en : name
+
+      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(queryName)}&units=metric&lang=${language}&appid=${apiKey}`)
       if (!res.ok) {
         if (res.status === 404) {
           throw new Error(t.errorMessage)
@@ -579,7 +646,7 @@ function App() {
       <div className="w-full max-w-5xl px-4 mt-6 flex flex-col gap-6">
         
         {/* Header (Production layout) */}
-        <header className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-950/20 backdrop-blur border border-slate-800/30 p-4 rounded-2xl shadow-lg w-full">
+        <header className="relative z-50 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-950/20 backdrop-blur border border-slate-800/30 p-4 rounded-2xl shadow-lg w-full">
           
           {/* Logo */}
           <div className="flex items-center gap-2">
@@ -827,10 +894,24 @@ function App() {
                       {/* Hourly forecast for selected day */}
                       {selectedDate && dailyForecasts[selectedDate] && (
                         <Card className="bg-slate-950/15 border-slate-800/30 backdrop-blur rounded-2xl overflow-hidden w-full">
-                          <CardHeader className="p-4 border-b border-slate-800/20 bg-slate-950/20">
+                          <CardHeader className="p-4 border-b border-slate-800/20 bg-slate-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider m-0">
                               {t.hourlyForecastFor} {new Date(selectedDate).toLocaleDateString(language === 'uk' ? 'uk-UA' : 'en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
                             </h3>
+                            {(() => {
+                              const moonPhase = getMoonPhase(new Date(selectedDate))
+                              return (
+                                <div className="flex items-center gap-1.5 bg-slate-900/40 border border-slate-800/60 px-2.5 py-1 rounded-xl text-xs shrink-0 self-start sm:self-auto">
+                                  <span className="text-sm leading-none">{moonPhase.icon}</span>
+                                  <span className="text-slate-400 font-medium">
+                                    {language === 'uk' ? 'Фаза Місяця:' : 'Moon Phase:'}
+                                  </span>
+                                  <span className="text-sky-300 font-semibold">
+                                    {language === 'uk' ? moonPhase.nameUk : moonPhase.nameEn}
+                                  </span>
+                                </div>
+                              )
+                            })()}
                           </CardHeader>
                           <CardContent className="p-4">
                             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 w-full">
